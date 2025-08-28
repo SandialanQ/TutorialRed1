@@ -7,14 +7,14 @@ training_data, validation_data , test_data = mnist_loader.load_data_wrapper()
 training_data = list(training_data)
 test_data = list(test_data)
 
-#net=network.Network([784,30,10])
+net=network.Network([784,30,10])
 
-#net.SGD( training_data, 15, 10, 0.1, test_data=test_data)
+net.SGD( training_data, 15, 10, 0.1, test_data=test_data)
 
-#archivo = open("red_prueba1.pkl",'wb')
-#pickle.dump(net,archivo)
-#archivo.close()
-#exit()
+archivo = open("red_prueba1.pkl",'wb')
+pickle.dump(net,archivo)
+archivo.close()
+exit()
 #leer el archivo
 
 archivo_lectura = open("red_prueba.pkl",'rb')
@@ -27,7 +27,3 @@ archivo = open("red_prueba.pkl",'wb')
 pickle.dump(net,archivo)
 archivo.close()
 exit()
-
-#esquema de como usar la red :
-imagen = leer_imagen("disco.jpg")
-print(net.feedforward(imagen))

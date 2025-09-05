@@ -16,6 +16,9 @@ import random
 # Third-party libraries
 import numpy as np
 
+from cross_entropy import cross_entropy
+
+
 class Network(object):
 
     def __init__(self, sizes):
@@ -31,15 +34,29 @@ class Network(object):
         ever used in computing the outputs from later layers."""
         self.num_layers = len(sizes)
         self.sizes = sizes
+
+        #self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
+        #self.weights = [np.random.randn(y, x)
+        #                for x, y in zip(sizes[:-1], sizes[1:])]
+        #cambio la inicializacion de los biases y weights por el metodo xavier 
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x)
-                        for x, y in zip(sizes[:-1], sizes[1:])]
+        self.weights = [np.random.randn(y, x) / np.sqrt(x)
+                for x, y in zip(sizes[:-1], sizes[1:])]
 
     def feedforward(self, a):
         """Return the output of the network if ``a`` is input."""
         for b, w in zip(self.biases, self.weights):
             a = sigmoid(np.dot(w, a)+b)
         return a
+
+
+    ###agrego la funcion total_loss
+    def perdida_total(self, data):
+        perdida = []
+        for x, y in data:
+            y_pred = self.feedforward(x)
+            perdida.append(cross_entropy(y, y_pred))
+        return np.mean(perdida)
 
     def SGD(self, training_data, epochs, mini_batch_size, eta,
             test_data=None):
@@ -64,6 +81,9 @@ class Network(object):
                 for k in range(0, n, mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
+
+            ###Calculamos el costo promedio  con la nueva funcion
+            perdida_total = self.perdida_total(training_data)  
             if test_data:
                 print("Epoch {0}: {1} / {2}".format(
                     j, self.evaluate(test_data), n_test))
@@ -103,8 +123,13 @@ class Network(object):
             activation = sigmoid(z)
             activations.append(activation)
         # backward pass
-        delta = self.cost_derivative(activations[-1], y) * \
-            sigmoid_prime(zs[-1])
+        #cambiamos delta cross entropy
+        #delta = self.cost_derivative(activations[-1], y) * \
+            #sigmoid_prime(zs[-1])
+        # Correcto
+        delta = (activations[-1] - y)
+
+        #delta = (output_activations[-1] - y)
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         # Note that the variable l in the loop below is used a little
